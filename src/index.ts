@@ -1,6 +1,6 @@
-import express from 'express';
 import {Address, configureChains, createClient, fetchToken, readContracts} from "@wagmi/core";
-import zip from 'lodash.zip'
+import express from 'express';
+import zip from 'lodash.zip';
 
 import {chains} from "./chains";
 import {providers} from "./providers";
@@ -19,7 +19,7 @@ createClient({
 app.get(`/`, async (req, res) => {
     const contract = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8"
 
-    const functions = ['token0', 'token1', 'liquidity']
+    const functions = ['token0', 'token1', 'liquidity', 'protocolFees']
     const outputs = await readContracts({
         allowFailure: true,
         contracts: functions.map((fn) => ({
