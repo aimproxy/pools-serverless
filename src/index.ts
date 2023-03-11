@@ -38,7 +38,7 @@ app.get(`/`, async (req, res) => {
             pair: `${token0.symbol}/${token1.symbol}`,
             ...zipped
         },
-        etherscan: `https://etherscan.io/address/${contract}`
+        'etherscan.io': `https://etherscan.io/address/${contract}`
     })
 });
 
