@@ -1,5 +1,5 @@
 import express from 'express';
-import {Address, configureChains, createClient, readContracts} from "@wagmi/core";
+import {Address, configureChains, createClient, fetchToken, readContracts} from "@wagmi/core";
 import zip from 'lodash.zip'
 
 import {chains} from "./chains";
@@ -20,7 +20,7 @@ app.get(`/`, async (req, res) => {
     const contract = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8"
 
     const functions = ['token0', 'token1', 'liquidity']
-    const balances = await readContracts({
+    const outputs = await readContracts({
         allowFailure: true,
         contracts: functions.map((fn) => ({
             address: contract as Address,
@@ -29,10 +29,14 @@ app.get(`/`, async (req, res) => {
         }) as const)
     })
 
-    const zipped = zip(functions, balances)
+    const zipped = Object.fromEntries(zip(functions, outputs))
+    const token0 = await fetchToken({address: zipped.token0 as Address})
+    const token1 = await fetchToken({address: zipped.token1 as Address})
+
     return res.status(200).json({
         [contract]: {
-            ...Object.fromEntries(zipped)
+            pair: `${token0.symbol}/${token1.symbol}`,
+            ...zipped
         },
         etherscan: `https://etherscan.io/address/${contract}`
     })
