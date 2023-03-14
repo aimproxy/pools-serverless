@@ -17,6 +17,11 @@ createClient({
 })
 
 app.get(`/`, async (req, res) => {
+    // How do I guess if the contract is Uniswap V2 or V3?
+    // https://ethereum.stackexchange.com/questions/102597/detect-if-destination-is-a-uniswap-v3-pool
+    // https://stackoverflow.com/questions/71936210/how-do-i-determine-whether-a-recipient-is-a-liquidity-pool
+
+
     const contract = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8"
 
     const functions = ['token0', 'token1', 'liquidity', 'protocolFees']
