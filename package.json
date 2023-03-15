@@ -4,9 +4,8 @@
   "description": "Serverless API for Liquidity Pools",
   "main": "index.js",
   "scripts": {
-    "generate:abis": "npx typechain --target=ethers-v6 './abis/**/*.json'",
-    "generate:uniswap-v3": "npx typechain --target=ethers-v6 './node_modules/@uniswap/v3-core/artifacts/contracts/**/*.json'",
-    "vercel:dev": "npx vercel dev"
+    "vercel:dev": "npx vercel dev",
+    "typechain": "node typechain.mjs"
   },
   "author": "Micael Dias <8200383@estg.ipp.pt>",
   "license": "MIT",
@@ -15,17 +14,19 @@
     "pnpm": ">=7"
   },
   "dependencies": {
+    "@uniswap/sdk-core": "^3.2.2",
     "@uniswap/v2-sdk": "^3.0.1",
     "@uniswap/v3-core": "^1.0.1",
+    "@uniswap/v3-periphery": "^1.4.3",
     "@uniswap/v3-sdk": "^3.9.0",
     "ethers": "^6.1.0",
-    "lodash.zip": "^4.2.0"
+    "lodash.zip": "^4.2.0",
+    "typechain": "^8.1.1"
   },
   "devDependencies": {
     "@typechain/ethers-v6": "^0.3.0",
     "@types/node": "^18.15.3",
     "@vercel/node": "^2.9.12",
-    "typechain": "^8.1.1",
     "typescript": "^4.9.5",
     "vercel": "^28.16.15"
   }

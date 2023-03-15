@@ -1,9 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
+      "destination": "/api/endpoints"
+    },
+    {
+      "source": "/api/pool",
       "destination": "/api/v0/pool/0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8"
+    },
+    {
+      "source": "/api/balance",
+      "destination": "/api/v0/balance/0x1a9C8182C09F50C8318d769245beA52c32BE35BC"
     }
   ]
 }
