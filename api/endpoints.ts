@@ -4,7 +4,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   res.status(200).json({
     uniswap: {
       v2: {
-        pool: '/api/uniswap/v2/pool/{chain}/{contract}',
+        pool: '/api/uniswap/v2/pool/mainnet/0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852',
       },
     },
     pool: '/api/v0/pool/0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8',
