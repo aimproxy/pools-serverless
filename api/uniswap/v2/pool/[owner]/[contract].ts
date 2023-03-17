@@ -19,14 +19,18 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   const pair = UniswapV2Pair.connect(contract, provider)
 
   // TODO These variables as constants from this smart contract IUniswapV2ERC20
-  const [poolToken, poolTokenDecimals] = await Promise.all([
+  const [
+    poolToken, poolTokenDecimals,
+    token0, token1,
+    ownerBalance, reserves, supply,
+  ] = await Promise.all([
     pair.symbol(), // this will always return constant UNI-V2
     pair.decimals(), // this will always return constant 18 decimals
-  ])
-
-  const [token0, token1] = await Promise.all([
     pair.token0(), // gets the address of token0
     pair.token1(), // gets the address of token1
+    pair.balanceOf(owner), // gets user balance of lp tokens
+    pair.getReserves(), // gets the reserves of the pool
+    pair.totalSupply(), //  gets total supply of LP tokens
   ])
 
   const token0ERC20 = ERC20.connect(token0, provider)
@@ -39,12 +43,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   const [symbol1, decimals1] = await Promise.all([
     token1ERC20.symbol(), // gets the symbol from token1
     token1ERC20.decimals(), // gets the decimals from token1
-  ])
-
-  const [ownerBalance, reserves, supply] = await Promise.all([
-    pair.balanceOf(owner), // gets user balance of lp tokens
-    pair.getReserves(), // gets the reserves of the pool
-    pair.totalSupply(), //  gets total supply of LP tokens
   ])
 
   const ownerBalances = {
