@@ -1,7 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import { ERC20__factory as ERC20, UniswapV2Pair__factory as UniswapV2Pair } from '../../../../../types'
 import { ethers } from 'ethers'
-import BigNumber from 'bignumber.js'
 
 const RPC_HOST = 'https://mainnet.infura.io/v3/d45cd5f5f19b4ff8b6d00265ecb56a6b'
 
@@ -9,23 +8,17 @@ const RPC_HOST = 'https://mainnet.infura.io/v3/d45cd5f5f19b4ff8b6d00265ecb56a6b'
  * Users LP total multiplied by the token 0|1 reserve,
  * and divided by the total token supply will give user token 0|1 quantity!
  */
-const getOwnerTokenBalance = (ownerBalance: bigint, reserve: bigint, totalSupply: bigint) => {
-  const o = BigNumber(ownerBalance.toString())
-  const r = BigNumber(reserve.toString())
-  const s = BigNumber(totalSupply.toString())
-  return o.multipliedBy(r).div(s)
-}
+const getOwnerTokenBalance = (owner: bigint, reserve: bigint, supply: bigint) => owner * reserve / supply
 
 export default async (req: VercelRequest, res: VercelResponse) => {
 
-  const chain = req.query.chain as string
   const owner = req.query.owner as string
   const contract = req.query.contract as string
 
   const provider = new ethers.JsonRpcProvider(RPC_HOST)
   const pair = UniswapV2Pair.connect(contract, provider)
 
-  // These variables as constants from this smart contract IUniswapV2ERC20
+  // TODO These variables as constants from this smart contract IUniswapV2ERC20
   const [poolToken, poolTokenDecimals] = await Promise.all([
     pair.symbol(), // this will always return constant UNI-V2
     pair.decimals(), // this will always return constant 18 decimals
@@ -54,36 +47,35 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     pair.totalSupply(), //  gets total supply of LP tokens
   ])
 
-  // Get the last x*y=k
-  const kLast = await pair.kLast()
-
-  // TODO Saber o preço em USD
-  // TODO Saber quanto que o trader tem na LP
+  const ownerBalances = {
+    token0: getOwnerTokenBalance(ownerBalance, reserves._reserve0, supply),
+    token1: getOwnerTokenBalance(ownerBalance, reserves._reserve1, supply),
+  }
 
   res.status(200).json({
-    chain,
     [contract]: {
       poolToken,
       pair: `${symbol0}/${symbol1}`,
       owner: {
         contract: owner,
         [poolToken]: ethers.formatUnits(ownerBalance, poolTokenDecimals),
-        [symbol0]: getOwnerTokenBalance(ownerBalance, reserves._reserve0, supply),
-        [symbol1]: getOwnerTokenBalance(ownerBalance, reserves._reserve1, supply),
+        [symbol0]: ethers.formatUnits(ownerBalances.token0, decimals0),
+        [symbol1]: ethers.formatUnits(ownerBalances.token1, decimals1),
+      },
+      pool: {
+        [symbol0]: ethers.formatUnits(reserves._reserve0, decimals0),
+        [symbol1]: ethers.formatUnits(reserves._reserve1, decimals1),
       },
       token0: {
         contract: token0,
+        symbol: symbol0,
         decimals: decimals0.toString(),
-        balance: `${ethers.formatUnits(reserves._reserve0, decimals0)} ${symbol0}`,
-        price: 'fx?',
       },
       token1: {
         contract: token1,
+        symbol: symbol1,
         decimals: decimals1.toString(),
-        balance: `${ethers.formatUnits(reserves._reserve1, decimals1)} ${symbol1}`,
-        price: 'fx?',
       },
-      kLast: BigNumber(kLast.toString()),
     },
   })
 }
